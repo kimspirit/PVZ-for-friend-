@@ -15,7 +15,7 @@ std::string GetWritablePath( const char* pFileName )
 #endif
 }
 
-static pvzdatabase *g_datamanager = nullptr;   //创建但列模式数据库
+static pvzdatabase *g_datamanager = nullptr;   //创建单例模式数据库
 pvzdatabase* pvzdatabase::getinstance()
 {
     do {
