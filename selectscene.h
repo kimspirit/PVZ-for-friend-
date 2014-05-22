@@ -20,7 +20,7 @@ private:
         enTagUi,
     };
     std::vector<Sprite *>	vecSelectedCard;		//存放一选择的卡片
-    std::vector<Sprite *>	vecNonSelectCard;		//存放为选择的卡片
+    std::vector<Sprite *>	vecNonSelectCard;		//存放未选择的卡片
 };
 
 #endif // SELECTSCENE_H
