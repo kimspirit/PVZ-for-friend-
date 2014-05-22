@@ -6,6 +6,7 @@
 #include "ui/CocosGUI.h"
 #include "cocostudio/CocoStudio.h"
 #include "./pvztools.h"
+#include "./pvzdatabase.h"
 using namespace ui;
 using namespace cocostudio;
 
@@ -52,13 +53,20 @@ bool selectscene::initScene()
         this->addChild(pMainUI);
 
         //card of character
-        auto pArrowBg = Sprite::create("charactercard/Arrow_CD.png");
-        pArrowBg->setPosition(Point(432,433));
-        addChild(pArrowBg,enOrderFront);
+	/**
+	 * 通过读取数据库来获取可以选择的卡片.
+	 */
+        std::vector<characterInfo> *pInfo = nullptr;
+        pvzdatabase::getinstance()->writecharacterinfo(&pInfo);
+        for(auto &info : *pInfo) {
+            auto pArrowBg = Sprite::create(info.strbgname);
+            pArrowBg->setPosition(Point(432,433));
+            addChild(pArrowBg,enOrderFront);
 
-        auto pArrow = Sprite::create("charactercard/Arrow_N.png");
-        pArrow->setPosition(Point(432,433));
-        addChild(pArrow,enOrderMid,ARROW_CARD);
+            auto pArrow = Sprite::create(info.strname);
+            pArrow->setPosition(Point(432,433));
+            addChild(pArrow,enOrderMid,ARROW_CARD);
+        }
 
         return true;
     } while(false);
@@ -66,10 +74,10 @@ bool selectscene::initScene()
     return false;
 }
 
-bool selectscene::onTouchBegan(Touch *pTouch, Event *pEvent){
+bool selectscene::onTouchBegan(Touch *pTouch, Event *pEvent) {
     auto pMainUi = dynamic_cast<Widget *>(getChildByTag(enTagUi));
     auto pCard = dynamic_cast<Sprite *>(getChildByTag(ARROW_CARD));
-    if(pCard !=nullptr && pMainUi != nullptr && pCard->boundingBox().containsPoint(pTouch->getLocation())){
+    if(pCard !=nullptr && pMainUi != nullptr && pCard->boundingBox().containsPoint(pTouch->getLocation())) {
         auto pImageView = pMainUi->getChildByName("Card1");
         auto pMoveTo = MoveTo::create(1.f,pImageView->getPosition());
         pCard->runAction(pMoveTo);
