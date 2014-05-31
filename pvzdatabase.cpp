@@ -7,7 +7,8 @@
 std::string GetWritablePath( const char* pFileName )
 {
 #if CC_TARGET_PLATFORM != CC_PLATFORM_WIN32
-    std::string strWriteablePath = cocos2d::FileUtils::getInstance()->getWritablePath();
+    std::string strWriteablePath = "";
+    strWriteablePath = cocos2d::FileUtils::getInstance()->getWritablePath();
     strWriteablePath+=pFileName;
     return strWriteablePath;
 #else
@@ -63,9 +64,9 @@ bool pvzdatabase::getcharacterinfo()
     {
         sqlite3 *pDB = nullptr;
         char *pErrorMSG = nullptr;
-	std::string strFileName = GetWritablePath("pvz.db");
+        std::string strFileName = GetWritablePath("pvz.db");
         CC_BREAK_IF(sqlite3_open(strFileName.c_str(),&pDB) != SQLITE_OK);
-        CC_BREAK_IF(sqlite3_exec(pDB,"select BackGroundName,Name,CDTime,Cost from character where isBuied='true'",readcharacterinfo,nullptr,&pErrorMSG) != SQLITE_OK);
+        CC_BREAK_IF(sqlite3_exec(pDB,"select BackGroundName,Name,CDTime,Cost,tag from character where isBuied='true'",readcharacterinfo,nullptr,&pErrorMSG) != SQLITE_OK);
         sqlite3_close(pDB);
         return true;
     } while (false);
@@ -83,6 +84,7 @@ int pvzdatabase::readcharacterinfo(void* pArg, int nColumns, char** pColumn_Valu
     tempInfo.strname = pColumn_Values[1];
     tempInfo.fCdTime = atof(pColumn_Values[2]);
     tempInfo.nCost = atoi(pColumn_Values[3]);
+    tempInfo.nTag = atoi(pColumn_Values[4]);
 
     g_datamanager->vecCaracter.push_back(tempInfo);
     return 0;

@@ -6,7 +6,7 @@
 #include "ui/CocosGUI.h"
 #include "cocostudio/CocoStudio.h"
 #include "./pvztools.h"
-#include "./pvzdatabase.h"
+
 using namespace ui;
 using namespace cocostudio;
 
@@ -53,19 +53,26 @@ bool selectscene::initScene()
         this->addChild(pMainUI);
 
         //card of character
-	/**
-	 * 通过读取数据库来获取可以选择的卡片.
-	 */
+        /**
+         * 通过读取数据库来获取可以选择的卡片.
+         */
         std::vector<characterInfo> *pInfo = nullptr;
         pvzdatabase::getinstance()->writecharacterinfo(&pInfo);
         for(auto &info : *pInfo) {
-            auto pArrowBg = Sprite::create(info.strbgname);
-            pArrowBg->setPosition(Point(432,433));
-            addChild(pArrowBg,enOrderFront);
+            auto pCardBg = Sprite::create(info.strbgname);
+            pCardBg->setPosition(432.f,433.f);
+            addChild(pCardBg,enOrderFront);
 
-            auto pArrow = Sprite::create(info.strname);
-            pArrow->setPosition(Point(432,433));
-            addChild(pArrow,enOrderMid,ARROW_CARD);
+            auto pCard = sesprite::createsprite(info.strname,Point(432,433),false,-1);
+            pCard->setPosition(432.f,433.f);
+            addChild(pCard,enOrderMid,info.nTag);
+
+            selectCharacterInfo tempInfo;
+            tempInfo.pCard = pCard;
+            tempInfo.fCdTime = info.fCdTime;
+            tempInfo.nTag = info.nTag;
+            tempInfo.nCost = info.nCost;
+            vecNonSelectedCard.push_back(tempInfo);
         }
 
         return true;
@@ -76,11 +83,46 @@ bool selectscene::initScene()
 
 bool selectscene::onTouchBegan(Touch *pTouch, Event *pEvent) {
     auto pMainUi = dynamic_cast<Widget *>(getChildByTag(enTagUi));
-    auto pCard = dynamic_cast<Sprite *>(getChildByTag(ARROW_CARD));
-    if(pCard !=nullptr && pMainUi != nullptr && pCard->boundingBox().containsPoint(pTouch->getLocation())) {
-        auto pImageView = pMainUi->getChildByName("Card1");
-        auto pMoveTo = MoveTo::create(1.f,pImageView->getPosition());
-        pCard->runAction(pMoveTo);
+
+
+    for(auto &info : vecNonSelectedCard) {
+        auto pCard = dynamic_cast<sesprite *>(getChildByTag(info.nTag));
+
+        if(pCard->getIsSelect() == true){
+            break;
+        }
+        if(pCard !=nullptr && pCard->getIsSelect() == false && pMainUi != nullptr && pCard->getBoundingBox().containsPoint(pTouch->getLocation())) {
+
+            pCard->setIsSelect(true);
+            pCard->setSeIndex(vecSelectedCard.size());
+
+            auto pImageView = pMainUi->getChildByName("Card1");
+            auto pMoveTo = MoveTo::create(1.f,pImageView->getPosition());
+            pCard->runAction(pMoveTo);
+
+            selectCharacterInfo tempInfo;
+            tempInfo.pCard = pCard;
+            tempInfo.fCdTime = info.fCdTime;
+            tempInfo.nTag = info.nTag;
+            tempInfo.nBgTag = info.nBgTag;
+            tempInfo.nCost = info.nCost;
+            vecSelectedCard.push_back(tempInfo);
+
+            return true;
+        }
     }
-    return true;
+
+    for(auto &info : vecSelectedCard) {
+        auto pCard = dynamic_cast<sesprite *>(getChildByTag(info.nTag));
+        if(pCard !=nullptr && pCard->getIsSelect() == true && pMainUi != nullptr && pCard->getBoundingBox().containsPoint(pTouch->getLocation())) {
+
+            pCard->setIsSelect(false);
+            pCard->setPosition(pCard->getBgPosition());
+            vecSelectedCard.erase(vecSelectedCard.begin()+pCard->getSeIndex());
+            pCard->setSeIndex(-1);
+            return true;
+        }
+    }
+
+    return false;
 }

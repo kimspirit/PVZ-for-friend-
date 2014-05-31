@@ -12,8 +12,9 @@ class characterInfo {
 public:
     std::string 	strbgname;
     std::string 	strname;
-    float 	fCdTime;
+    float 		fCdTime;
     int 		nCost;
+    int         	nTag;
 };
 class pvzdatabase
 {

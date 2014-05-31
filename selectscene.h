@@ -1,9 +1,20 @@
 #ifndef SELECTSCENE_H
 #define SELECTSCENE_H
 
+#include <string>
 #include <vector>
-#include "cocos2d.h"
+#include "sesprite.h"
+#include "./pvzdatabase.h"
 using namespace cocos2d;
+
+class selectCharacterInfo {
+public:
+    sesprite 		*pCard;
+    float 		fCdTime;
+    int 		nCost;
+    int         	nTag;
+    int			nBgTag;
+};
 
 class selectscene : public Layer
 {
@@ -19,8 +30,8 @@ private:
     enum{
         enTagUi,
     };
-    std::vector<Sprite *>	vecSelectedCard;		//存放一选择的卡片
-    std::vector<Sprite *>	vecNonSelectCard;		//存放未选择的卡片
+    std::vector<selectCharacterInfo>	vecSelectedCard;		//存放一个选择的卡片
+    std::vector<selectCharacterInfo>	vecNonSelectedCard;		//存放一个未选择的卡片
 };
 
 #endif // SELECTSCENE_H
